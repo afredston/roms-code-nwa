@@ -28,7 +28,7 @@ def create_monthly_mean_plot(data_array, plot_date, parameter):
     # Plot coastline
     pyroms_toolbox.plot_coast_line(grd)
     # Save plot
-    outfile = '/Users/jeewantha/Code/images/monthly_means/o2_bottom.png'
+    outfile = '/Users/jeewantha/Code/images/monthly_means/{0}_bottom.png'.format(parameter)
     plt.savefig(outfile, dpi=300, orientation='portrait')
     plt.close()
     return True
@@ -70,7 +70,11 @@ def create_monthly_mean(haul_date):
     print(mean_o2)
     # Write this file as 'o2_bottom_monthly_average'
     np.savetxt('/Users/jeewantha/Code/data/monthly_means/o2_monthly_mean.out', mean_o2)
+    # Create the plots for the 4 parameters
     create_monthly_mean_plot(mean_o2, haul_date, 'O2')
+    create_monthly_mean_plot(mean_lg_zplk, haul_date, 'lg_zplk')
+    create_monthly_mean_plot(mean_me_zplk, haul_date, 'me_zplk')
+    create_monthly_mean_plot(mean_sm_zplk, haul_date, 'sm_zplk')
     print('Success')
 
 
@@ -139,4 +143,3 @@ if __name__ == '__main__':
     # OK. Let's take the 10th unique value and stick it in there
     test_date_1 = catch_hauls_df['haul_date'].unique()[10]
     create_monthly_mean(test_date_1)
-
