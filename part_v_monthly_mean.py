@@ -14,6 +14,26 @@ import numpy as np
 import numpy.ma as ma
 
 
+# Create plot of whatever grid you want
+def create_monthly_mean_plot(data_array, plot_date, parameter):
+    grd = pyroms.grid.get_ROMS_grid('NWA')
+    lon = grd.hgrid.lon_rho
+    lat = grd.hgrid.lat_rho
+    plt.figure()
+    # plt.pcolor(lon, lat, daily_o2[0], vmin=bottom_min, vmax=bottom_max)
+    plt.pcolor(lon, lat, data_array, cmap='RdYlGn')
+    plt.colorbar()
+    plt.axis('image')
+    plt.title('{0} for {1}'.format(parameter, plot_date))
+    # Plot coastline
+    pyroms_toolbox.plot_coast_line(grd)
+    # Save plot
+    outfile = '/Users/jeewantha/Code/images/monthly_means/o2_bottom.png'
+    plt.savefig(outfile, dpi=300, orientation='portrait')
+    plt.close()
+    return True
+
+
 # Create a netCDF4 file with monthly averages for a certain date
 # Haul date is a datetime object
 def create_monthly_mean(haul_date):
@@ -26,16 +46,31 @@ def create_monthly_mean(haul_date):
     print(start_date)
     print(end_date)
     file_paths = daily_index.loc[start_date:end_date, 'file_path'].tolist()
-    # First let's try for O2
+    # For O2, Large zooplankton, Medium Zooplankton, Small zooplankton
     o2_list = []
+    lg_zplk = []
+    me_zplk = []
+    sm_zplk = []
     for file_path in file_paths:
         daily_o2 = pyroms.utility.get_nc_var('o2', file_path)[0]
-        # Bottom O2
+        daily_lg_zplk = pyroms.utility.get_nc_var('nlgz', file_path)[0]
+        daily_me_zplk = pyroms.utility.get_nc_var('nmdz', file_path)[0]
+        daily_sm_zplk = pyroms.utility.get_nc_var('nsmz', file_path)[0]
+        # Append the values to
         o2_list.append(daily_o2[0])
-    # Get the mean O2 for bottom layer
+        lg_zplk.append(daily_lg_zplk[0])
+        me_zplk.append(daily_me_zplk[0])
+        sm_zplk.append(daily_sm_zplk[0])
+    # Calculate the mean across axis=0
     mean_o2 = np.mean(ma.array(o2_list), axis=0)
+    mean_lg_zplk = np.mean(ma.array(lg_zplk), axis=0)
+    mean_me_zplk = np.mean(ma.array(me_zplk), axis=0)
+    mean_sm_zplk = np.mean(ma.array(sm_zplk), axis=0)
     print(mean_o2.shape)
+    print(mean_o2)
     # Write this file as 'o2_bottom_monthly_average'
+    np.savetxt('/Users/jeewantha/Code/data/monthly_means/o2_monthly_mean.out', mean_o2)
+    create_monthly_mean_plot(mean_o2, haul_date, 'O2')
     print('Success')
 
 
@@ -58,9 +93,9 @@ def get_small_zplk_mean(haul_date, haul_lon, haul_lat):
 if __name__ == '__main__':
     daily_index = get_file_index()
     # Set up the grid for later plotting
-    grd = pyroms.grid.get_ROMS_grid('NWA')
-    lon = grd.hgrid.lon_rho
-    lat = grd.hgrid.lat_rho
+    # grd = pyroms.grid.get_ROMS_grid('NWA')
+    # lon = grd.hgrid.lon_rho
+    # lat = grd.hgrid.lat_rho
     # Call 'get_o2_mean'
     get_o2_mean('2016-05-25', 97.5, 82.3)
     # Read the data file containing the hauls
