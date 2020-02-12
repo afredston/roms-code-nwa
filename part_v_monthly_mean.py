@@ -76,9 +76,6 @@ def create_monthly_mean(haul_date):
     mean_sm_zplk = ma.mean(ma.array(sm_zplk), axis=0)
     print(mean_o2.shape)
     print(mean_o2)
-    # Write this file as 'o2_bottom_monthly_average'
-    # np.savetxt('/Users/jeewantha/Code/data/monthly_means/o2_monthly_mean.out', mean_o2)
-    # Writing the four parameter files to their location
     storage_location = parameters_file_path + '{0}/{1}/'.format(haul_date.year, haul_date.month)
     # If the path does not exist
     if not os.path.exists(storage_location):
@@ -93,56 +90,115 @@ def create_monthly_mean(haul_date):
         # np.savetxt(file_name, file_to_write)
         file_to_write.dump(file_name)
         print('Saved {0}'.format(file_name))
-    # Create the plots for the 4 parameters
-    """
-    create_monthly_mean_plot(mean_o2, haul_date, 'O2')
-    create_monthly_mean_plot(mean_lg_zplk, haul_date, 'lg_zplk')
-    create_monthly_mean_plot(mean_me_zplk, haul_date, 'me_zplk')
-    create_monthly_mean_plot(mean_sm_zplk, haul_date, 'sm_zplk')
-    """
     print('Success')
 
 
-# A method where we enter a date, and a pair of coordinates
-# then we return the mean [O2] for the sea bottom and surface
+# A method where we feed a row and get the corresponding
+# [O2] value for the haul/row
 def get_o2_mean(row):
-    # Timedelta object of 30 days
-    # Haul date is a string that we convert to a datetime object
-    # haul_date_dt = datetime.datetime.strptime(haul_date, '%Y-%m-%d')
-    # haul_result = haul_year * haul_month
-    # print(row['year'])
-    # print(row['month'])
     year = int(row['year'])
     month = int(row['month'])
     o2_file_loc = '{0}{1}/{2}/o2_data.out'.format(parameters_file_path,
                                                   year, month)
     print(o2_file_loc)
-    print(row['lon'])
-    print(row['lat'])
+    # Get longitude
+    haul_lon = row['lon']
+    # Since the coordinate system is a little odd we have to add
+    # 360 to the normal value
+    haul_lon = haul_lon + 360
+    # Get latitude
+    haul_lat = row['lat']
     if os.path.exists(o2_file_loc):
-        print('Path exists')
         # Get the grid coordinates
-        i_j = pyroms.utility.get_ij(row['lon'], row['lat'], nwa_grd)
-        print(i_j)
-        return i_j
-    # print("Path doesn't exist")
-    return 250
+        i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        # Load the masked array
+        o2_array = np.load(o2_file_loc)
+        # Get the [O2] value from the array
+        o2_value = o2_array[j, i]
+        return o2_value
+    return None
 
 
-# A method where we enter a date, and a pair of coordinates
-# then we return the mean [O2] for the sea bottom and surface
-def get_small_zplk_mean(haul_date, haul_lon, haul_lat):
+# A method where we feed a row and get the corresponding
+# [N2] for Small Zooplankton value for the haul/row
+def get_sm_zplk_mean(row):
+    year = int(row['year'])
+    month = int(row['month'])
+    sm_zplk_file_loc = '{0}{1}/{2}/sm_zplk_data.out'.format(parameters_file_path,
+                                                  year, month)
+    print(sm_zplk_file_loc)
+    # Get longitude
+    haul_lon = row['lon']
+    # Since the coordinate system is a little odd we have to add
+    # 360 to the normal value
+    haul_lon = haul_lon + 360
+    # Get latitude
+    haul_lat = row['lat']
+    if os.path.exists(sm_zplk_file_loc):
+        # Get the grid coordinates
+        i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        # Load the masked array
+        sm_zplk_array = np.load(sm_zplk_file_loc)
+        # Get the [O2] value from the array
+        sm_zplk_value = sm_zplk_array[j, i]
+        return sm_zplk_value
+    return None
+
+
+# A method where we feed a row and get the corresponding
+# [N2] for Medium Zooplankton value for the haul/row
+def get_me_zplk_mean(row):
+    year = int(row['year'])
+    month = int(row['month'])
+    me_zplk_file_loc = '{0}{1}/{2}/me_zplk_data.out'.format(parameters_file_path,
+                                                  year, month)
+    print(me_zplk_file_loc)
+    # Get longitude
+    haul_lon = row['lon']
+    # Since the coordinate system is a little odd we have to add
+    # 360 to the normal value
+    haul_lon = haul_lon + 360
+    # Get latitude
+    haul_lat = row['lat']
+    if os.path.exists(me_zplk_file_loc):
+        # Get the grid coordinates
+        i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        # Load the masked array
+        me_zplk_array = np.load(me_zplk_file_loc)
+        # Get the [O2] value from the array
+        me_zplk_value = me_zplk_array[j, i]
+        return me_zplk_value
+    return None
+
+
+# A method where we feed a row and get the corresponding
+# [N2] for Large Zooplankton value for the haul/row
+def get_lg_zplk_mean(row):
+    year = int(row['year'])
+    month = int(row['month'])
+    lg_zplk_file_loc = '{0}{1}/{2}/lg_zplk_data.out'.format(parameters_file_path,
+                                                  year, month)
+    print(lg_zplk_file_loc)
+    # Get longitude
+    haul_lon = row['lon']
+    # Since the coordinate system is a little odd we have to add
+    # 360 to the normal value
+    haul_lon = haul_lon + 360
+    # Get latitude
+    haul_lat = row['lat']
+    if os.path.exists(lg_zplk_file_loc):
+        # Get the grid coordinates
+        i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        # Load the masked array
+        lg_zplk_array = np.load(lg_zplk_file_loc)
+        # Get the [O2] value from the array
+        lg_zplk_value = lg_zplk_array[j, i]
+        return lg_zplk_value
     return None
 
 
 if __name__ == '__main__':
     daily_index = get_file_index()
-    # Set up the grid for later plotting
-    # lon = grd.hgrid.lon_rho
-    # lat = grd.hgrid.lat_rho
-    # Call 'get_o2_mean'
-    # get_o2_mean('2016-05-25', 97.5, 82.3)
-    # Read the data file containing the hauls
     catch_hauls_df = pd.read_csv('data/catch_data_hauls_merge.csv')
     print(catch_hauls_df.head(10))
     # Add a day column with default set to 1
@@ -169,11 +225,6 @@ if __name__ == '__main__':
     # print(sample_haul_date)
     sample_start_date = sample_haul_date - relativedelta(months=1)
     sample_end_date = sample_haul_date + relativedelta(months=2)
-    # print(sample_haul_date - relativedelta(months=1))
-    # print(sample_haul_date + relativedelta(months=2))
-    # Testing if the file index is working
-    # print(daily_index.head(10))
-    # print(daily_index['2004-01-01']['file_path'])
     print(daily_index.loc[sample_start_date: sample_end_date, 'file_path'])
     print(daily_index.loc[sample_start_date: sample_end_date, 'file_path'].tolist())
     # create_monthly_mean()
@@ -213,10 +264,19 @@ if __name__ == '__main__':
     test_df.reset_index(inplace=True)
     # Disable chained assignment warnings. This is such a pain
     pd.options.mode.chained_assignment = None
-    blah = test_df.apply(get_o2_mean, axis=1)
-    test_df['blah'] = blah
-    print(test_df[['year', 'month', 'blah']])
-    test_df.to_csv('/Users/jeewantha/Code/data/current_points.csv')
+    # Apply 'get_o2_mean'
+    test_df['o2_seasonal'] = test_df.apply(get_o2_mean, axis=1)
+    # Apply 'get_sm_zplk_mean'
+    test_df['sm_zplk_seasonal'] = test_df.apply(get_sm_zplk_mean, axis=1)
+    # Apply 'get_me_zplk_mean'
+    test_df['me_zplk_seasonal'] = test_df.apply(get_me_zplk_mean, axis=1)
+    # Apply 'get_lg_zplk_mean'
+    test_df['lg_zplk_seasonal'] = test_df.apply(get_lg_zplk_mean, axis=1)
+    # test_df['blah'] = blah
+    print(test_df[['year', 'month', 'o2_seasonal']])
+    out_df = test_df[['level_0', 'haulid', 'sppocean', 'year', 'month', 'lat', 'lon',
+                      'o2_seasonal', 'sm_zplk_seasonal', 'me_zplk_seasonal', 'lg_zplk_seasonal']]
+    out_df.to_csv('/Users/jeewantha/Code/data/haul_data_10_dates.csv')
     # print(blah)
     # print(test_df)
     # test_df.loc[: 'blah_blah'] = test_df.apply(get_o2_mean, axis=1)
