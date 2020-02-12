@@ -13,6 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 
+parameters_file_path = '/Users/jeewantha/Code/data/monthly_means/'
+nwa_grd = pyroms.grid.get_ROMS_grid('NWA')
+
 
 # Create plot of whatever grid you want
 def create_monthly_mean_plot(data_array, plot_date, parameter):
@@ -28,17 +31,22 @@ def create_monthly_mean_plot(data_array, plot_date, parameter):
     # Plot coastline
     pyroms_toolbox.plot_coast_line(grd)
     # Save plot
-    outfile = '/Users/jeewantha/Code/images/monthly_means/{0}_bottom.png'.format(parameter)
+    outfile = '/Users/jeewantha/Code/images/monthly_means/{0}_bottom_ver_1.png'.format(parameter)
     plt.savefig(outfile, dpi=300, orientation='portrait')
     plt.close()
     return True
 
 
+# But would the netCDF4 file be the best cause of action?
+# Just writing text files. Would that work?
 # Create a netCDF4 file with monthly averages for a certain date
 # Haul date is a datetime object
 def create_monthly_mean(haul_date):
     print(type(haul_date))
     haul_date = pd.to_datetime(haul_date)
+    print(haul_date.day)
+    print(haul_date.month)
+    print(haul_date.year)
     print(type(haul_date))
     daily_index = get_file_index()
     start_date = haul_date - relativedelta(months=1)
@@ -62,30 +70,63 @@ def create_monthly_mean(haul_date):
         me_zplk.append(daily_me_zplk[0])
         sm_zplk.append(daily_sm_zplk[0])
     # Calculate the mean across axis=0
-    mean_o2 = np.mean(ma.array(o2_list), axis=0)
-    mean_lg_zplk = np.mean(ma.array(lg_zplk), axis=0)
-    mean_me_zplk = np.mean(ma.array(me_zplk), axis=0)
-    mean_sm_zplk = np.mean(ma.array(sm_zplk), axis=0)
+    mean_o2 = ma.mean(ma.array(o2_list), axis=0)
+    mean_lg_zplk = ma.mean(ma.array(lg_zplk), axis=0)
+    mean_me_zplk = ma.mean(ma.array(me_zplk), axis=0)
+    mean_sm_zplk = ma.mean(ma.array(sm_zplk), axis=0)
     print(mean_o2.shape)
     print(mean_o2)
     # Write this file as 'o2_bottom_monthly_average'
-    np.savetxt('/Users/jeewantha/Code/data/monthly_means/o2_monthly_mean.out', mean_o2)
+    # np.savetxt('/Users/jeewantha/Code/data/monthly_means/o2_monthly_mean.out', mean_o2)
+    # Writing the four parameter files to their location
+    storage_location = parameters_file_path + '{0}/{1}/'.format(haul_date.year, haul_date.month)
+    # If the path does not exist
+    if not os.path.exists(storage_location):
+        os.makedirs(storage_location)
+        print('Path newly created')
+    else:
+        print('Path exists')
+    files_to_write = [mean_o2, mean_lg_zplk, mean_me_zplk, mean_sm_zplk]
+    file_names_to_write = ['o2_data.out', 'lg_zplk_data.out', 'me_zplk_data.out', 'sm_zplk_data.out']
+    for file_name, file_to_write in zip(file_names_to_write, files_to_write):
+        file_name = storage_location + file_name
+        # np.savetxt(file_name, file_to_write)
+        file_to_write.dump(file_name)
+        print('Saved {0}'.format(file_name))
     # Create the plots for the 4 parameters
+    """
     create_monthly_mean_plot(mean_o2, haul_date, 'O2')
     create_monthly_mean_plot(mean_lg_zplk, haul_date, 'lg_zplk')
     create_monthly_mean_plot(mean_me_zplk, haul_date, 'me_zplk')
     create_monthly_mean_plot(mean_sm_zplk, haul_date, 'sm_zplk')
+    """
     print('Success')
 
 
 # A method where we enter a date, and a pair of coordinates
 # then we return the mean [O2] for the sea bottom and surface
-def get_o2_mean(haul_date, haul_lon, haul_lat):
+def get_o2_mean(row):
     # Timedelta object of 30 days
-    td_30 = timedelta(days=30)
     # Haul date is a string that we convert to a datetime object
-    haul_date_dt = datetime.datetime.strptime(haul_date, '%Y-%m-%d')
-    print('OK')
+    # haul_date_dt = datetime.datetime.strptime(haul_date, '%Y-%m-%d')
+    # haul_result = haul_year * haul_month
+    # print(row['year'])
+    # print(row['month'])
+    year = int(row['year'])
+    month = int(row['month'])
+    o2_file_loc = '{0}{1}/{2}/o2_data.out'.format(parameters_file_path,
+                                                  year, month)
+    print(o2_file_loc)
+    print(row['lon'])
+    print(row['lat'])
+    if os.path.exists(o2_file_loc):
+        print('Path exists')
+        # Get the grid coordinates
+        i_j = pyroms.utility.get_ij(row['lon'], row['lat'], nwa_grd)
+        print(i_j)
+        return i_j
+    # print("Path doesn't exist")
+    return 250
 
 
 # A method where we enter a date, and a pair of coordinates
@@ -97,11 +138,10 @@ def get_small_zplk_mean(haul_date, haul_lon, haul_lat):
 if __name__ == '__main__':
     daily_index = get_file_index()
     # Set up the grid for later plotting
-    # grd = pyroms.grid.get_ROMS_grid('NWA')
     # lon = grd.hgrid.lon_rho
     # lat = grd.hgrid.lat_rho
     # Call 'get_o2_mean'
-    get_o2_mean('2016-05-25', 97.5, 82.3)
+    # get_o2_mean('2016-05-25', 97.5, 82.3)
     # Read the data file containing the hauls
     catch_hauls_df = pd.read_csv('data/catch_data_hauls_merge.csv')
     print(catch_hauls_df.head(10))
@@ -140,6 +180,43 @@ if __name__ == '__main__':
     # First a list of unique dates in the 'haul_date' column
     print(type(catch_hauls_df['haul_date'].unique()[0]))
     print(len(catch_hauls_df['haul_date'].unique()))
+    # Loop through
+    """
+    for run_date in catch_hauls_df['haul_date'].unique()[0:10]:
+        create_monthly_mean(run_date)
+        print('One done')
+    print('All done')
     # OK. Let's take the 10th unique value and stick it in there
+    """
+    # Creating a new column
+    # catch_hauls_df['o2_mean'] = get_o2_mean(catch_hauls_df['year'], catch_hauls_df['month'],
+    #                                        catch_hauls_df['lon'], catch_hauls_df['lat'], grd)
+    # print(catch_hauls_df['o2_mean'])
+    """
     test_date_1 = catch_hauls_df['haul_date'].unique()[10]
     create_monthly_mean(test_date_1)
+    # Let's just test the plot real quick. To see if it's saved correctly
+    data_path = '/Users/jeewantha/Code/data/monthly_means/1981/11/o2_data.out'
+    # data_np = np.loadtxt(data_path)
+    data_np = np.load(data_path)
+    print(data_np)
+    test_datetime = datetime.datetime.now()
+    create_monthly_mean_plot(data_np, plot_date=test_datetime, parameter='something_o2_ver_2')
+    print('Yaaaaas')
+    """
+    # Now we will start assigning some values
+    # Using the 10 unique values
+    haul_date_list = catch_hauls_df['haul_date'].unique()[0:10]
+    filter_key = catch_hauls_df['haul_date'].isin(haul_date_list)
+    test_df = catch_hauls_df[filter_key]
+    print(test_df)
+    test_df.reset_index(inplace=True)
+    # Disable chained assignment warnings. This is such a pain
+    pd.options.mode.chained_assignment = None
+    blah = test_df.apply(get_o2_mean, axis=1)
+    test_df['blah'] = blah
+    print(test_df[['year', 'month', 'blah']])
+    test_df.to_csv('/Users/jeewantha/Code/data/current_points.csv')
+    # print(blah)
+    # print(test_df)
+    # test_df.loc[: 'blah_blah'] = test_df.apply(get_o2_mean, axis=1)
