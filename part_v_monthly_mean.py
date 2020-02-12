@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 
-parameters_file_path = '/Users/jeewantha/Code/data/monthly_means/'
+# parameters_file_path = '/Users/jeewantha/Code/data/monthly_means/'
+parameters_file_path = '/Volumes/P4/workdir/jeewantha/data/monthly_means/'
 nwa_grd = pyroms.grid.get_ROMS_grid('NWA')
 
 
@@ -42,17 +43,10 @@ def create_monthly_mean_plot(data_array, plot_date, parameter):
 # Create a netCDF4 file with monthly averages for a certain date
 # Haul date is a datetime object
 def create_monthly_mean(haul_date):
-    print(type(haul_date))
     haul_date = pd.to_datetime(haul_date)
-    print(haul_date.day)
-    print(haul_date.month)
-    print(haul_date.year)
-    print(type(haul_date))
     daily_index = get_file_index()
     start_date = haul_date - relativedelta(months=1)
     end_date = haul_date + relativedelta(months=2)
-    print(start_date)
-    print(end_date)
     file_paths = daily_index.loc[start_date:end_date, 'file_path'].tolist()
     # For O2, Large zooplankton, Medium Zooplankton, Small zooplankton
     o2_list = []
@@ -74,8 +68,6 @@ def create_monthly_mean(haul_date):
     mean_lg_zplk = ma.mean(ma.array(lg_zplk), axis=0)
     mean_me_zplk = ma.mean(ma.array(me_zplk), axis=0)
     mean_sm_zplk = ma.mean(ma.array(sm_zplk), axis=0)
-    print(mean_o2.shape)
-    print(mean_o2)
     storage_location = parameters_file_path + '{0}/{1}/'.format(haul_date.year, haul_date.month)
     # If the path does not exist
     if not os.path.exists(storage_location):
@@ -231,14 +223,18 @@ if __name__ == '__main__':
     # First a list of unique dates in the 'haul_date' column
     print(type(catch_hauls_df['haul_date'].unique()[0]))
     print(len(catch_hauls_df['haul_date'].unique()))
+    i = 0
+    for x in catch_hauls_df['haul_date'].unique():
+        print('{0}: {1}'.format(i, x))
+        i += 1
     # Loop through
-    """
-    for run_date in catch_hauls_df['haul_date'].unique()[0:10]:
+
+    for run_date in catch_hauls_df['haul_date'].unique()[28:]:
         create_monthly_mean(run_date)
-        print('One done')
+        print('Done for {0}'.format(run_date))
     print('All done')
+
     # OK. Let's take the 10th unique value and stick it in there
-    """
     # Creating a new column
     # catch_hauls_df['o2_mean'] = get_o2_mean(catch_hauls_df['year'], catch_hauls_df['month'],
     #                                        catch_hauls_df['lon'], catch_hauls_df['lat'], grd)
@@ -257,7 +253,8 @@ if __name__ == '__main__':
     """
     # Now we will start assigning some values
     # Using the 10 unique values
-    haul_date_list = catch_hauls_df['haul_date'].unique()[0:10]
+    """
+    haul_date_list = catch_hauls_df['haul_date'].unique()
     filter_key = catch_hauls_df['haul_date'].isin(haul_date_list)
     test_df = catch_hauls_df[filter_key]
     print(test_df)
@@ -276,7 +273,8 @@ if __name__ == '__main__':
     print(test_df[['year', 'month', 'o2_seasonal']])
     out_df = test_df[['level_0', 'haulid', 'sppocean', 'year', 'month', 'lat', 'lon',
                       'o2_seasonal', 'sm_zplk_seasonal', 'me_zplk_seasonal', 'lg_zplk_seasonal']]
-    out_df.to_csv('/Users/jeewantha/Code/data/haul_data_10_dates.csv')
+    out_df.to_csv('/Users/jeewantha/Code/data/full_haul_data.csv')
     # print(blah)
     # print(test_df)
     # test_df.loc[: 'blah_blah'] = test_df.apply(get_o2_mean, axis=1)
+    """
