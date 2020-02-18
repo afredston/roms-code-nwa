@@ -103,11 +103,26 @@ def get_o2_mean(row):
     if os.path.exists(o2_file_loc):
         # Get the grid coordinates
         i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        surrounding_indices = [(j+1, i), (j+1, i+1), (j, i+1), (j-1, i+1), (j-1, i), (j-1, i-1), (j, i-1), (j+1, i-1)]
+        # surrounding_indices = [(j + 2, i), (j + 2, i + 2), (j, i + 2), (j - 2, i + 2), (j - 2, i), (j - 2, i - 2),
+        #                       (j, i - 2), (j + 2, i - 2)]
         # Load the masked array
-        o2_array = np.load(o2_file_loc)
-        # Get the [O2] value from the array
-        o2_value = o2_array[j, i]
-        return o2_value
+        print('{0}, {1}'.format(i, j))
+        with open(o2_file_loc) as o2_file:
+            o2_array = np.load(o2_file)
+            # fill up the masked values with np.nan
+            o2_array = o2_array.filled(np.nan)
+            print(o2_array.shape)
+            # Get the [O2] value from the array
+            o2_value = o2_array[j, i]
+            if np.isnan(o2_value):
+                test_array = []
+                for new_j, new_i in surrounding_indices:
+                    test_array.append(o2_array[new_j, new_i])
+                np_array = np.array(test_array)
+                o2_value = np.nanmean(np_array)
+                print(o2_value)
+            return o2_value
     return None
 
 
@@ -118,7 +133,7 @@ def get_sm_zplk_mean(row):
     month = int(row['month'])
     sm_zplk_file_loc = '{0}{1}/{2}/sm_zplk_data.out'.format(parameters_file_path,
                                                   year, month)
-    print(sm_zplk_file_loc)
+    #print(sm_zplk_file_loc)
     # Get longitude
     haul_lon = row['lon']
     # Since the coordinate system is a little odd we have to add
@@ -129,10 +144,19 @@ def get_sm_zplk_mean(row):
     if os.path.exists(sm_zplk_file_loc):
         # Get the grid coordinates
         i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        surrounding_indices = [(j + 1, i), (j + 1, i + 1), (j, i + 1), (j - 1, i + 1), (j - 1, i), (j - 1, i - 1),
+                               (j, i - 1), (j + 1, i - 1)]
         # Load the masked array
         sm_zplk_array = np.load(sm_zplk_file_loc)
+        sm_zplk_array = sm_zplk_array.filled(np.nan)
         # Get the [O2] value from the array
         sm_zplk_value = sm_zplk_array[j, i]
+        if np.isnan(sm_zplk_value):
+            test_array = []
+            for new_j, new_i in surrounding_indices:
+                test_array.append(sm_zplk_array[new_j, new_i])
+            np_array = np.array(test_array)
+            sm_zplk_value = np.nanmean(np_array)
         return sm_zplk_value
     return None
 
@@ -144,7 +168,7 @@ def get_me_zplk_mean(row):
     month = int(row['month'])
     me_zplk_file_loc = '{0}{1}/{2}/me_zplk_data.out'.format(parameters_file_path,
                                                   year, month)
-    print(me_zplk_file_loc)
+    #print(me_zplk_file_loc)
     # Get longitude
     haul_lon = row['lon']
     # Since the coordinate system is a little odd we have to add
@@ -155,10 +179,19 @@ def get_me_zplk_mean(row):
     if os.path.exists(me_zplk_file_loc):
         # Get the grid coordinates
         i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        surrounding_indices = [(j + 1, i), (j + 1, i + 1), (j, i + 1), (j - 1, i + 1), (j - 1, i), (j - 1, i - 1),
+                               (j, i - 1), (j + 1, i - 1)]
         # Load the masked array
         me_zplk_array = np.load(me_zplk_file_loc)
+        me_zplk_array = me_zplk_array.filled(np.nan)
         # Get the [O2] value from the array
         me_zplk_value = me_zplk_array[j, i]
+        if np.isnan(me_zplk_value):
+            test_array = []
+            for new_j, new_i in surrounding_indices:
+                test_array.append(me_zplk_array[new_j, new_i])
+            np_array = np.array(test_array)
+            me_zplk_value = np.nanmean(np_array)
         return me_zplk_value
     return None
 
@@ -170,7 +203,7 @@ def get_lg_zplk_mean(row):
     month = int(row['month'])
     lg_zplk_file_loc = '{0}{1}/{2}/lg_zplk_data.out'.format(parameters_file_path,
                                                   year, month)
-    print(lg_zplk_file_loc)
+    #print(lg_zplk_file_loc)
     # Get longitude
     haul_lon = row['lon']
     # Since the coordinate system is a little odd we have to add
@@ -181,10 +214,19 @@ def get_lg_zplk_mean(row):
     if os.path.exists(lg_zplk_file_loc):
         # Get the grid coordinates
         i, j = pyroms.utility.get_ij(haul_lon, haul_lat, nwa_grd)
+        surrounding_indices = [(j + 1, i), (j + 1, i + 1), (j, i + 1), (j - 1, i + 1), (j - 1, i), (j - 1, i - 1),
+                               (j, i - 1), (j + 1, i - 1)]
         # Load the masked array
         lg_zplk_array = np.load(lg_zplk_file_loc)
+        lg_zplk_array = lg_zplk_array.filled(np.nan)
         # Get the [O2] value from the array
         lg_zplk_value = lg_zplk_array[j, i]
+        if np.isnan(lg_zplk_value):
+            test_array = []
+            for new_j, new_i in surrounding_indices:
+                test_array.append(lg_zplk_array[new_j, new_i])
+            np_array = np.array(test_array)
+            lg_zplk_value = np.nanmean(np_array)
         return lg_zplk_value
     return None
 
@@ -201,8 +243,8 @@ if __name__ == '__main__':
     # Print out the relevant columns
     print(catch_hauls_df[['haul_date', 'year', 'month', 'day']].head(10))
     # Filter the data from or after 1980-01-01
-    mask_post_1980 = catch_hauls_df['haul_date'] >= '1980-01-01'
-    catch_hauls_df = catch_hauls_df[mask_post_1980]
+    mask_post_1980_pre_2011 = (catch_hauls_df['haul_date'] >= '1980-01-01') & (catch_hauls_df['haul_date'] < '2010-12-01')
+    catch_hauls_df = catch_hauls_df[mask_post_1980_pre_2011]
     print("Print out the final dataframe")
     print(catch_hauls_df)
     # Sort the dataframe by 'haul_date'
@@ -223,17 +265,17 @@ if __name__ == '__main__':
     # First a list of unique dates in the 'haul_date' column
     print(type(catch_hauls_df['haul_date'].unique()[0]))
     print(len(catch_hauls_df['haul_date'].unique()))
-    i = 0
+    y = 0
     for x in catch_hauls_df['haul_date'].unique():
-        print('{0}: {1}'.format(i, x))
-        i += 1
+        print('{0}: {1}'.format(y, x))
+        y += 1
     # Loop through
-
-    for run_date in catch_hauls_df['haul_date'].unique()[28:]:
+    """
+    for run_date in catch_hauls_df['haul_date'].unique()[172:]:
         create_monthly_mean(run_date)
         print('Done for {0}'.format(run_date))
     print('All done')
-
+    """
     # OK. Let's take the 10th unique value and stick it in there
     # Creating a new column
     # catch_hauls_df['o2_mean'] = get_o2_mean(catch_hauls_df['year'], catch_hauls_df['month'],
@@ -253,16 +295,20 @@ if __name__ == '__main__':
     """
     # Now we will start assigning some values
     # Using the 10 unique values
+    # Make a plot to see what's happening with the
     """
     haul_date_list = catch_hauls_df['haul_date'].unique()
     filter_key = catch_hauls_df['haul_date'].isin(haul_date_list)
     test_df = catch_hauls_df[filter_key]
     print(test_df)
     test_df.reset_index(inplace=True)
+    """
+    test_df = catch_hauls_df.copy(deep=True)
     # Disable chained assignment warnings. This is such a pain
     pd.options.mode.chained_assignment = None
     # Apply 'get_o2_mean'
     test_df['o2_seasonal'] = test_df.apply(get_o2_mean, axis=1)
+    print('O2 done')
     # Apply 'get_sm_zplk_mean'
     test_df['sm_zplk_seasonal'] = test_df.apply(get_sm_zplk_mean, axis=1)
     # Apply 'get_me_zplk_mean'
@@ -271,10 +317,10 @@ if __name__ == '__main__':
     test_df['lg_zplk_seasonal'] = test_df.apply(get_lg_zplk_mean, axis=1)
     # test_df['blah'] = blah
     print(test_df[['year', 'month', 'o2_seasonal']])
-    out_df = test_df[['level_0', 'haulid', 'sppocean', 'year', 'month', 'lat', 'lon',
+    out_df = test_df[['haulid', 'sppocean', 'year', 'month', 'lat', 'lon',
                       'o2_seasonal', 'sm_zplk_seasonal', 'me_zplk_seasonal', 'lg_zplk_seasonal']]
-    out_df.to_csv('/Users/jeewantha/Code/data/full_haul_data.csv')
+    out_df.to_csv('/Users/jeewantha/Code/data/full_haul_data_ver_3.csv')
+    print('Done yo')
     # print(blah)
     # print(test_df)
     # test_df.loc[: 'blah_blah'] = test_df.apply(get_o2_mean, axis=1)
-    """

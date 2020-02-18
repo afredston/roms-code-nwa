@@ -96,17 +96,18 @@ if __name__ == '__main__':
     # Create the DataFrame from the list of dictionaries
     df_daily = DataFrame(date_list)
     # Check if the dataframe is as intended
-    print(df_daily.head(10))
+    # print(df_daily.head(10))
+    """
     # Select a certain month
     print(df_daily[df_daily['file_date'] == '1980-02-20'])
     df_daily['file_date_formatted'] = pd.to_datetime(df_daily['file_date'])
     # print(df_daily.head(10))
     print(df_daily['file_date'].dt.month != 6)
+    # Get the final few rows
+    """
+    print(df_daily.tail(20))
     # Now try this for the normal column. Should work. Right?
     # print(df_daily['file_date'].dt.month == 6)
     # Spoiler: It works
     # Next steps
     # String together several arrays and make monthly averages for a certain layer
-
-    # Read in the Hauls file. Then start matching up the haul dates with the
-    mean_o2()
