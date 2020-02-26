@@ -1,7 +1,10 @@
 surface_gif.gif
 surface_gif_2.gif
 images/*
-data/*
+data/catch_data.csv
+data/catch_data_hauls_merge.csv
+data/hauls.csv
+data/full_haul_data_ver_2.csv
 test_copy.py
 part_vi_assign_monthly_mean_to_haul.py
 individual_plot.py

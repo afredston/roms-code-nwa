@@ -233,7 +233,7 @@ def get_lg_zplk_mean(row):
 
 if __name__ == '__main__':
     daily_index = get_file_index()
-    catch_hauls_df = pd.read_csv('data/catch_data_hauls_merge_2.csv')
+    catch_hauls_df = pd.read_csv('data/catch_data_hauls_merge_3.csv')
     print(catch_hauls_df.head(10))
     # Add a day column with default set to 1
     catch_hauls_df['day'] = 1
@@ -242,9 +242,18 @@ if __name__ == '__main__':
     print('How does the haul date column look')
     # Print out the relevant columns
     print(catch_hauls_df[['haul_date', 'year', 'month', 'day']].head(10))
+    # The number of hauls
+    print(catch_hauls_df.shape)
     # Filter the data from or after 1980-01-01
     mask_post_1980_pre_2011 = (catch_hauls_df['haul_date'] >= '1980-01-01') & (catch_hauls_df['haul_date'] < '2010-12-01')
     catch_hauls_df = catch_hauls_df[mask_post_1980_pre_2011]
+    # The number of hauls after timespan filtering
+    print(catch_hauls_df.shape)
+    # Filter out the data from New Foundland Hauls
+    mask_newfoundland = (catch_hauls_df['regionfact'] != 'DFO_Newfoundland')
+    catch_hauls_df = catch_hauls_df[mask_newfoundland]
+    # The number of hauls after regional filtering
+    print(catch_hauls_df.shape)
     print("Print out the final dataframe")
     print(catch_hauls_df)
     # Sort the dataframe by 'haul_date'
@@ -254,24 +263,8 @@ if __name__ == '__main__':
     # Now on to the fun stuff
     catch_hauls_df.reset_index(inplace=True)
     print(catch_hauls_df)
-    # Let's just get the seasonal range for a certain date
-    sample_haul_date = catch_hauls_df.loc[0, 'haul_date']
-    # print(sample_haul_date)
-    sample_start_date = sample_haul_date - relativedelta(months=1)
-    sample_end_date = sample_haul_date + relativedelta(months=2)
-    print(daily_index.loc[sample_start_date: sample_end_date, 'file_path'])
-    print(daily_index.loc[sample_start_date: sample_end_date, 'file_path'].tolist())
-    # create_monthly_mean()
-    # First a list of unique dates in the 'haul_date' column
-    print(type(catch_hauls_df['haul_date'].unique()[0]))
-    print(len(catch_hauls_df['haul_date'].unique()))
-    y = 0
-    for x in catch_hauls_df['haul_date'].unique():
-        print('{0}: {1}'.format(y, x))
-        y += 1
 
-    full_hauls_dates = catch_hauls_df['haul_date'].unique()
-
+    """
     catch_hauls_df = pd.read_csv('data/catch_data_hauls_merge.csv')
     print(catch_hauls_df.head(10))
     # Add a day column with default set to 1
@@ -311,6 +304,7 @@ if __name__ == '__main__':
         y += 1
 
     bsb_haul_dates = catch_hauls_df['haul_date'].unique()
+    
 
     # Now compare the 2
     missing_dates = list(set(full_hauls_dates).difference(bsb_haul_dates))
@@ -328,12 +322,11 @@ if __name__ == '__main__':
         print('{0}: {1}'.format(j, x))
         j += 1
 
-    for run_date in sorted_missing_dates[45:]:
+    for run_date in sorted_missing_dates[113:]:
         create_monthly_mean(run_date)
         print('Done for {0}'.format(run_date))
     print('All done')
     # Loop through
-    """
     for run_date in catch_hauls_df['haul_date'].unique()[172:]:
         create_monthly_mean(run_date)
         print('Done for {0}'.format(run_date))
@@ -365,8 +358,7 @@ if __name__ == '__main__':
     test_df = catch_hauls_df[filter_key]
     print(test_df)
     test_df.reset_index(inplace=True)
-    """
-    """
+    
     test_df = catch_hauls_df.copy(deep=True)
     # Disable chained assignment warnings. This is such a pain
     pd.options.mode.chained_assignment = None
@@ -383,7 +375,7 @@ if __name__ == '__main__':
     print(test_df[['year', 'month', 'o2_seasonal']])
     out_df = test_df[['haulid', 'sppocean', 'year', 'month', 'lat', 'lon',
                       'o2_seasonal', 'sm_zplk_seasonal', 'me_zplk_seasonal', 'lg_zplk_seasonal']]
-    out_df.to_csv('/Users/jeewantha/Code/data/full_haul_data_ver_3.csv')
+    out_df.to_csv('/Users/jeewantha/Code/data/full_haul_data_ver_4.csv')
     print('Done yo')
     # print(blah)
     # print(test_df)
