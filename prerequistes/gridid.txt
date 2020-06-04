@@ -1,0 +1,12 @@
+# gridid definition file
+#
+id      = NWA
+name    = NWA
+grdfile = /t1/scratch/dujuan/NWA/Inputs/Grid/NWA_grd.nc
+N       = 40
+grdtype = roms
+Vtrans  = 4
+theta_s = 7
+theta_b = 2
+Tcline  = 250
+#
